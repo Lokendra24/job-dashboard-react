@@ -1,25 +1,33 @@
-import logo from './logo.svg';
-import './App.css';
+import { useEffect, useState } from "react";
+import "./App.css";
+import axios from 'axios'
+import JobCard from "./components/JobCard";
 
-function App() {
+export default function App() {
+    const [ids,setIds]=useState([])
+    const [pageData,setPageData]=useState(6)
+    const [showButton,setShowButton]=useState(true)
+
+    let count=0
+
+  useEffect(()=>{
+    ( async ()=>{
+      const res = await axios.get('https://hacker-news.firebaseio.com/v0/jobstories.json')
+      setIds(res.data)
+    }
+    )();
+  },[])
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <h1>Hacker News Job Board</h1>
+      {
+        ids.map((d) => {
+          count=count+1
+          return ( count<=pageData && <JobCard id={d} key={d} setShowButton={setShowButton} /> )
+        } )
+      }
+      { (!showButton && pageData<60) && <button onClick={()=> setPageData(pageData+6) } >{!showButton ? "Load More" : "Loading" }</button>}
     </div>
   );
 }
-
-export default App;
